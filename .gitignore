@@ -1,0 +1,176 @@
+# ============================================
+# Travel Agency Portal - .gitignore
+# ============================================
+
+# ============================================
+# Laravel Backend
+# ============================================
+
+# Dependencies
+backend/vendor/
+backend/node_modules/
+backend/package-lock.json
+backend/yarn.lock
+
+# Environment files
+backend/.env
+backend/.env.backup
+backend/.env.production
+backend/.env.local
+backend/.env.*.local
+
+# Laravel specific
+backend/storage/*.key
+backend/storage/logs/*.log
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/testing/*
+backend/storage/framework/views/*
+backend/bootstrap/cache/*
+
+# Compiled files
+backend/public/hot
+backend/public/storage
+backend/public/build
+backend/public/mix-manifest.json
+
+# IDE
+backend/.idea/
+backend/.vscode/
+backend/*.swp
+backend/*.swo
+backend/*~
+backend/.DS_Store
+
+# Testing
+backend/coverage/
+backend/.phpunit.result.cache
+backend/phpunit.xml
+
+# ============================================
+# React Frontend
+# ============================================
+
+# Dependencies
+frontend/node_modules/
+frontend/package-lock.json
+frontend/yarn.lock
+frontend/.pnp
+frontend/.pnp.js
+
+# Production build
+frontend/build/
+frontend/dist/
+frontend/.vite/
+
+# Environment files
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Testing
+frontend/coverage/
+frontend/.nyc_output
+
+# IDE
+frontend/.idea/
+frontend/.vscode/
+frontend/*.swp
+frontend/*.swo
+frontend/*~
+frontend/.DS_Store
+
+# Logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/lerna-debug.log*
+frontend/.pnpm-debug.log*
+
+# ============================================
+# Common / Root Level
+# ============================================
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.cache
+*.bak
+*.backup
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# ============================================
+# Project Specific
+# ============================================
+
+# Uploaded files (keep structure, ignore content)
+backend/storage/app/public/packages/*
+backend/storage/app/public/avatars/*
+!backend/storage/app/public/packages/.gitkeep
+!backend/storage/app/public/avatars/.gitkeep
+
+# Documentation builds
+docs/_build/
+docs/.doctrees/
+
+# Backup files
+*.backup
+*.old
+*.orig
+
+# ============================================
+# Security - Never commit these
+# ============================================
+
+# API Keys
+*.pem
+*.key
+*.cert
+secrets/
+.secrets
+
+# Configuration with sensitive data
+config/secrets.php
+config/local.php
+
+
+
+
+
+
