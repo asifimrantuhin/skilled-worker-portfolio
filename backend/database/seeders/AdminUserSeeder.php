@@ -19,6 +19,7 @@ class AdminUserSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'admin',
             'is_active' => true,
+            'email_verified_at' => now(),
         ]);
 
         User::create([
@@ -28,6 +29,7 @@ class AdminUserSeeder extends Seeder
             'role' => 'agent',
             'commission_rate' => 10.00,
             'is_active' => true,
+            'email_verified_at' => now(),
         ]);
 
         User::create([
@@ -36,6 +38,7 @@ class AdminUserSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'customer',
             'is_active' => true,
+            'email_verified_at' => now(),
         ]);
     }
 }

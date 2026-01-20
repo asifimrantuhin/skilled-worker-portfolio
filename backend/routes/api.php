@@ -20,6 +20,10 @@ use App\Http\Controllers\API\DashboardController;
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/password/forgot', [AuthController::class, 'requestPasswordReset']);
+Route::post('/password/reset', [AuthController::class, 'resetPassword']);
+Route::post('/refresh', [AuthController::class, 'refresh']);
+Route::get('/verify-email/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('verification.verify');
 
 // Package routes (public)
 Route::get('/packages', [PackageController::class, 'index']);
@@ -32,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::put('/user/profile', [AuthController::class, 'updateProfile']);
+    Route::post('/email/verification-notification', [AuthController::class, 'sendVerificationEmail']);
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index']);

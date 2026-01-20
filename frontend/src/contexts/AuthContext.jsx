@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import api from '../services/api'
+import api, { persistTokens, clearTokens } from '../services/api'
 
 const AuthContext = createContext(null)
 
@@ -16,14 +16,32 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      fetchUser()
-    } else {
-      setLoading(false)
-    }
+    bootstrapAuth()
   }, [])
+
+  const bootstrapAuth = async () => {
+    const token = localStorage.getItem('token')
+    const refreshToken = localStorage.getItem('refresh_token')
+
+    if (token) {
+      persistTokens(token, refreshToken)
+      await fetchUser()
+      return
+    }
+
+    if (refreshToken) {
+      try {
+        await refreshSession(refreshToken)
+        await fetchUser()
+        return
+      } catch (error) {
+        console.error('Refresh on bootstrap failed:', error)
+        clearTokens()
+      }
+    }
+
+    setLoading(false)
+  }
 
   const fetchUser = async () => {
     try {
@@ -35,8 +53,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error fetching user:', error)
-      localStorage.removeItem('token')
-      delete api.defaults.headers.common['Authorization']
+      clearTokens()
       setUser(null)
     } finally {
       setLoading(false)
@@ -46,37 +63,44 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const response = await api.post('/login', { email, password })
     if (response.data.success) {
-      const { token, user } = response.data
-      localStorage.setItem('token', token)
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      const { token, refresh_token, user } = response.data
+      persistTokens(token, refresh_token)
       setUser(user)
       return response.data
-    } else {
-      throw new Error(response.data.message || 'Login failed')
     }
+    throw new Error(response.data.message || 'Login failed')
   }
 
   const register = async (userData) => {
     const response = await api.post('/register', userData)
     if (response.data.success) {
-      const { token, user } = response.data
-      localStorage.setItem('token', token)
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      const { token, refresh_token, user } = response.data
+      persistTokens(token, refresh_token)
       setUser(user)
       return response.data
-    } else {
-      throw new Error(response.data.message || 'Registration failed')
     }
+    throw new Error(response.data.message || 'Registration failed')
+  }
+
+  const refreshSession = async (refreshToken) => {
+    const response = await api.post('/refresh', { refresh_token: refreshToken })
+    if (response.data.success) {
+      const { token, refresh_token, user } = response.data
+      persistTokens(token, refresh_token)
+      if (user) setUser(user)
+      return response.data
+    }
+    throw new Error(response.data.message || 'Refresh failed')
   }
 
   const logout = async () => {
+    const refreshToken = localStorage.getItem('refresh_token')
     try {
-      await api.post('/logout')
+      await api.post('/logout', { refresh_token: refreshToken })
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
-      localStorage.removeItem('token')
-      delete api.defaults.headers.common['Authorization']
+      clearTokens()
       setUser(null)
     }
   }
@@ -87,6 +111,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    refreshSession,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',
     isAgent: user?.role === 'agent',
