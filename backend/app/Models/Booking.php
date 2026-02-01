@@ -28,6 +28,11 @@ class Booking extends Model
         'payment_status',
         'travelers_info',
         'special_requests',
+        'promo_code_id',
+        'promo_discount',
+        'cancellation_fee',
+        'refund_amount',
+        'hold_token',
         'cancellation_reason',
         'confirmed_at',
         'cancelled_at',
@@ -40,6 +45,9 @@ class Booking extends Model
         'tax' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'paid_amount' => 'decimal:2',
+        'promo_discount' => 'decimal:2',
+        'cancellation_fee' => 'decimal:2',
+        'refund_amount' => 'decimal:2',
         'travelers_info' => 'array',
         'confirmed_at' => 'datetime',
         'cancelled_at' => 'datetime',
@@ -82,6 +90,42 @@ class Booking extends Model
     }
 
     public function tickets()
+
+    public function promoCode()
+    {
+        return $this->belongsTo(PromoCode::class);
+    }
+
+    public function inventoryHold()
+    {
+        return $this->hasOne(InventoryHold::class);
+    }
+
+    public function getDaysUntilTravel(): int
+    {
+        return max(0, now()->startOfDay()->diffInDays($this->travel_date, false));
+    }
+
+    public function getCancellationPolicy(): ?CancellationPolicy
+    {
+        return $this->package?->cancellationPolicy ?? CancellationPolicy::getDefault();
+    }
+
+    public function calculateCancellationRefund(): array
+    {
+        $policy = $this->getCancellationPolicy();
+
+        if (! $policy) {
+            return [
+                'refund_percentage' => 0,
+                'refund_amount' => 0,
+                'cancellation_fee' => $this->paid_amount,
+                'rule_applied' => null,
+            ];
+        }
+
+        return $policy->calculateRefund($this->paid_amount, $this->getDaysUntilTravel());
+    }
     {
         return $this->hasMany(Ticket::class);
     }

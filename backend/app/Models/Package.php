@@ -29,6 +29,7 @@ class Package extends Model
         'min_participants',
         'is_active',
         'is_featured',
+        'cancellation_policy_id',
         'views',
         'bookings_count',
         'created_by',
@@ -63,6 +64,36 @@ class Package extends Model
     public function inquiries()
     {
         return $this->hasMany(Inquiry::class);
+    }
+
+    public function cancellationPolicy()
+    {
+        return $this->belongsTo(CancellationPolicy::class);
+    }
+
+    public function inventoryHolds()
+    {
+        return $this->hasMany(InventoryHold::class);
+    }
+
+    public function getAvailableSlots(string $date): int
+    {
+        $availability = $this->availability()->where('date', $date)->first();
+
+        if ($availability) {
+            $baseSlots = $availability->available_slots;
+            $booked = $availability->booked_slots;
+        } else {
+            $baseSlots = $this->max_participants;
+            $booked = 0;
+        }
+
+        $held = $this->inventoryHolds()
+            ->active()
+            ->where('travel_date', $date)
+            ->sum('slots_held');
+
+        return max(0, $baseSlots - $booked - $held);
     }
 }
 

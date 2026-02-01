@@ -28,6 +28,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'avatar',
         'is_active',
         'commission_rate',
+        'commission_tier_id',
+        'referral_code',
     ];
 
     /**
@@ -94,6 +96,36 @@ class User extends Authenticatable implements MustVerifyEmail
     public function refreshTokens()
     {
         return $this->hasMany(RefreshToken::class);
+    }
+
+    public function commissionTier()
+    {
+        return $this->belongsTo(CommissionTier::class);
+    }
+
+    public function tierHistories()
+    {
+        return $this->hasMany(AgentTierHistory::class, 'agent_id');
+    }
+
+    public function quotes()
+    {
+        return $this->hasMany(Quote::class, 'agent_id');
+    }
+
+    public function reminders()
+    {
+        return $this->hasMany(FollowUpReminder::class, 'agent_id');
+    }
+
+    public function referralsMade()
+    {
+        return $this->hasMany(Referral::class, 'referrer_id');
+    }
+
+    public function referredBy()
+    {
+        return $this->hasOne(Referral::class, 'referred_id');
     }
 
     // Helper methods
